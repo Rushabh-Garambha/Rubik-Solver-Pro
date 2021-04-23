@@ -27,6 +27,16 @@ moves = None
 cubie_offset = 2
 
 
+#  R U L D R U L D
+def fill_cube_with_sample_state():
+    a = np.array([['g', 'o', 'o', 'w', 'y', 'y', 'r', 'w', 'g'],
+                  ['y', 'b', 'y', 'o', 'b', 'g', 'y', 'g', 'r'],
+                  ['b', 'g', 'y', 'r', 'r', 'w', 'w', 'r', 'g'],
+                  ['r', 'b', 'w', 'r', 'g', 'o', 'w', 'b', 'o'],
+                  ['b', 'b', 'o', 'y', 'o', 'w', 'w', 'g', 'o'],
+                  ['b', 'y', 'r', 'o', 'w', 'r', 'b', 'y', 'g']])
+    return a
+
 def create_live_feed_cube_square(img, start_x, start_y, box_size, border_color=(255, 0, 255), cube_size=3, ):
     box_size = max(90, box_size)
     cubie_s = box_size / cube_size
@@ -135,6 +145,7 @@ def show_step(move, final_contours, f):
         f = draw_arrow(3, 7, final_contours, f)
         f = draw_arrow(1, 3, final_contours, f)
     else:
+        print('drawing arraws for B')
         f = draw_arrow(2, 0, final_contours, f)
         f = draw_arrow(5, 3, final_contours, f)
         f = draw_arrow(8, 6, final_contours, f)
@@ -211,19 +222,23 @@ while True:
         # but for that we will need to get the sequence correct --hint for self-- do it with centers rather than corners
 
     # showing steps if solving the cube
-    if moves is not None:
-
-        if np.asarray(side) == cube[cur_side]:
+    if moves is not None and len(side) == 9:
+        print(moves)
+        print(cur_side)
+        if np.all(np.asarray(side) == cube[cur_side]):
+            print("detected current side")
             move = moves[0]
             frame = show_step(move, final_contours, frame)
 
-        elif np.asarray(side) == cube_next[next_side]:
+        elif np.all(np.asarray(side) == cube_next[next_side]):
             move = moves[0]
+            print("detected Next side")
             if move[0] == 'B':
                 moves = translate_moves(moves)
                 cube_next = cube
                 cur_side = next_side
             else:
+                print('not back side')
                 moves = moves[1:]
                 move = moves[0]
                 if move[0] == 'B':
@@ -243,7 +258,10 @@ while True:
     # Display Live Feed
     cv.imshow('live_feed', frame)
 
-    # if cv.waitKey(1) == ord('r'):
+    if cv.waitKey(1) == ord('r'):
+        cube = fill_cube_with_sample_state()
+        for i in cube:
+            cd.update_colors(i)
     # TODO: reset state to try everything again
 
     if cv.waitKey(1) == ord('p'):

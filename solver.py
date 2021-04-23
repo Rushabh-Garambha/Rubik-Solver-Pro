@@ -110,7 +110,7 @@ def update_cube(cube, color, step, isPrime):
         cube[s4][i4] = temp
 
         # updating the face rotation
-        cube[f1] = cube[f1][6, 3, 0, 7, 4, 1, 8, 5, 2]
+        cube[f1] = cube[f1][[6, 3, 0, 7, 4, 1, 8, 5, 2]]
 
     else:
 
@@ -122,6 +122,6 @@ def update_cube(cube, color, step, isPrime):
         cube[s1][i1] = temp
 
         # updating the face rotation
-        cube[f1] = cube[f1][2, 5, 8, 1, 4, 7, 0, 3, 6]
+        cube[f1] = cube[f1][[2, 5, 8, 1, 4, 7, 0, 3, 6]]
 
     return cube
