@@ -2,6 +2,7 @@ import cv2 as cv
 import numpy as np
 from color_calibration import get_color
 from cube_display import CubeDisplay
+from solver import get_steps, update_cube
 
 cd = CubeDisplay()
 
@@ -10,16 +11,21 @@ if not cap.isOpened():
     print("Cannot open camera")
     exit()
 
-
 min_thr = 74
 max_thr = 142
 cv.namedWindow('live_feed')
 
 kernel_size = 3
-cube = np.empty((6,9), dtype='str')
+cube = np.empty((6, 9), dtype='str')
+cube_next = np.empty((6, 9), dtype='str')
+color_index = ['y', 'b', 'r', 'g', 'o', 'w']
 detected_side = []
-solution = ''
+cur_side = None
+next_side = None
+moves = None
+# solution = ''
 cubie_offset = 2
+
 
 def create_live_feed_cube_square(img, start_x, start_y, box_size, border_color=(255, 0, 255), cube_size=3, ):
     box_size = max(90, box_size)
@@ -38,8 +44,8 @@ def create_live_feed_cube_square(img, start_x, start_y, box_size, border_color=(
             cubies_coords.append([pt1, pt2])
     return img, cubies_coords
 
-def detect_contours(img,min_threshold,max_threshold):
 
+def detect_contours(img, min_threshold, max_threshold):
     img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
     # img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     img_gray = img_hsv[:, :, 2]
@@ -77,6 +83,65 @@ def detect_contours(img,min_threshold,max_threshold):
 
     return final_contours
 
+
+def translate_moves(moves):
+    translated = []
+    for move in moves:
+        if move[0] == 'B':
+            move[0] = 'R'
+        elif move[0] == 'F':
+            move[0] = 'L'
+        elif move[0] == 'R':
+            move[0] = 'F'
+        elif move[0] == 'L':
+            move[0] = 'B'
+        translated.append(move)
+    return translated
+
+
+def draw_arrow(start, end, points, frame):
+    x1 = points[start][4]
+    y1 = points[start][5]
+    x2 = points[end][4]
+    y2 = points[end][5]
+    return cv.arrowedLine(frame, (x1, y1), (x2, y2), (255, 0, 255), 2)
+
+
+def show_step(move, final_contours, f):
+    if move == 'L':
+        f = draw_arrow(0, 6, final_contours, f)
+    elif move == "L'":
+        f = draw_arrow(6, 0, final_contours, f)
+    elif move == 'R':
+        f = draw_arrow(8, 2, final_contours, f)
+    elif move == "R'":
+        f = draw_arrow(2, 8, final_contours, f)
+    elif move == 'U':
+        f = draw_arrow(2, 0, final_contours, f)
+    elif move == "U'":
+        f = draw_arrow(0, 2, final_contours, f)
+    elif move == 'D':
+        f = draw_arrow(6, 8, final_contours, f)
+    elif move == "D'":
+        f = draw_arrow(8, 6, final_contours, f)
+    elif move == 'F':
+        f = draw_arrow(1, 5, final_contours, f)
+        f = draw_arrow(5, 7, final_contours, f)
+        f = draw_arrow(7, 3, final_contours, f)
+        f = draw_arrow(3, 1, final_contours, f)
+    elif move == "F'":
+        f = draw_arrow(5, 1, final_contours, f)
+        f = draw_arrow(7, 5, final_contours, f)
+        f = draw_arrow(3, 7, final_contours, f)
+        f = draw_arrow(1, 3, final_contours, f)
+    else:
+        f = draw_arrow(2, 0, final_contours, f)
+        f = draw_arrow(5, 3, final_contours, f)
+        f = draw_arrow(8, 6, final_contours, f)
+
+    return f
+
+
 while True:
     # Display Cube State
     cv.imshow('cube_state', cd.cube_frame)
@@ -90,19 +155,19 @@ while True:
     frame, live_instance_cords = create_live_feed_cube_square(frame, 10, height - 100, 90, (128, 128, 128))
 
     # Detect contours
-    final_contours = detect_contours(img,min_thr,max_thr)
+    final_contours = detect_contours(img, min_thr, max_thr)
 
-    #display contours
+    # display contours
     for fc in final_contours:
         cv.putText(frame, str(final_contours.index(fc)), (fc[0], fc[1]), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
         cv.rectangle(frame, (fc[0] + 2, fc[1] + 2), (fc[0] + fc[2] - 2, fc[1] + fc[3] - 2), (255, 255, 255), 2)
 
-    #color Extraction
+    # color Extraction
     side = []
     if (len(final_contours) == 9):
         for fc in final_contours:
-            x1, y1 = fc[0] + cubie_offset , fc[1] + cubie_offset
-            x2, y2 = fc[0] + fc[2] - cubie_offset , fc[1] + fc[3] - cubie_offset
+            x1, y1 = fc[0] + cubie_offset, fc[1] + cubie_offset
+            x2, y2 = fc[0] + fc[2] - cubie_offset, fc[1] + fc[3] - cubie_offset
 
             color = get_color(img, x1, x2, y1, y2)
 
@@ -114,49 +179,72 @@ while True:
         if (len(side) == 9):
             detected_side = side
 
-    #update instance box
-    frame = cd.update_colors(detected_side,frame, live_instance_cords,list(range(9)))
+    # update instance box
+    frame = cd.update_colors(detected_side, frame, live_instance_cords, list(range(9)))
 
-    #append state
+    # append state
     if cv.waitKey(1) == ord('a'):
         cd.update_colors(detected_side)
         if len(detected_side) == 9:
             print(detected_side)
             center = detected_side[4]
-            if center == 'y':
-                cube[0] = detected_side
-            elif center == 'b':
-                cube[1] = detected_side
-            elif center == 'r':
-                cube[2] = detected_side
-            elif center == 'g':
-                cube[3] = detected_side
-            elif center == 'o':
-                cube[4] = detected_side
-            elif center == 'w':
-                cube[5] = detected_side
+            cube[color_index.index(center)] = detected_side
 
-
-    #solve cube state
+    # solve cube state
     if cv.waitKey(1) == ord('s'):
-        # TODO: add condition to check if all the sides are detected
         print(cube)
         ins_str = cd.solve(cube)
-        print("test : " + ins_str)
+        print("solution : " + ins_str)
         if len(ins_str) != 0:
             solution = "Solution: " + ins_str[1:-1]
+            moves = get_steps(ins_str)
+            cur_side = 2
+            first_move = moves[0]
+            if first_move[0] == 'B':
+                next_side = 3
+                cube_next = cube
+            else:
+                next_side = 2
+                cube_next = update_cube(cube, 'r', first_move[0], (len(first_move) == 2))
         # also once we have solution we won't need to show the contours..
         # we will still need to detect them to show arrows,
         # but for that we will need to get the sequence correct --hint for self-- do it with centers rather than corners
 
+    # showing steps if solving the cube
+    if moves is not None:
 
-    frame = cv.putText(frame, solution, (30,30), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0,0,0), 2)
+        if np.asarray(side) == cube[cur_side]:
+            move = moves[0]
+            frame = show_step(move, final_contours, frame)
 
-    #Display Live Feed
+        elif np.asarray(side) == cube_next[next_side]:
+            move = moves[0]
+            if move[0] == 'B':
+                moves = translate_moves(moves)
+                cube_next = cube
+                cur_side = next_side
+            else:
+                moves = moves[1:]
+                move = moves[0]
+                if move[0] == 'B':
+                    if cur_side == 4:
+                        next_side = 1
+                    else:
+                        next_side = cur_side + 1
+                    cube_next = cube
+                else:
+                    next_side = cur_side
+                    cube_next = update_cube(cube, color_index[next_side], move[0], (len(move) == 2))
+
+                frame = show_step(move, final_contours, frame)
+
+    # frame = cv.putText(frame, solution, (30,30), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0,0,0), 2)
+
+    # Display Live Feed
     cv.imshow('live_feed', frame)
 
     # if cv.waitKey(1) == ord('r'):
-        # TODO: reset state to try everything again
+    # TODO: reset state to try everything again
 
     if cv.waitKey(1) == ord('p'):
         break
