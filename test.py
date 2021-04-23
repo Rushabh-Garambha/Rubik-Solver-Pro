@@ -90,7 +90,7 @@ while True:
 
             # Check if contour is close to a square.
             if ratio >= 0.8 and ratio <= 1.2 and w >= 30 and w <= 60 and area / (w * h) > 0.4:
-                final_contours.append((x, y, w, h))
+                final_contours.append((x, y, w, h,x+(w//2),y+(h//2)))
 
     # img_cnt = cv.drawContours(img, contours, -1, (0, 255, 0), 3)
     # print(len(final_contours))
@@ -114,6 +114,7 @@ while True:
 
             x1, y1 = fc[0] + cubie_offset , fc[1] + cubie_offset
             x2, y2 = fc[0] + fc[2] - cubie_offset , fc[1] + fc[3] - cubie_offset
+
             color = get_color(img, x1, x2, y1, y2)
             # color = get_color(img_hsv, x1, x2, y1, y2)
             # print(color)
