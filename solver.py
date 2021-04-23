@@ -23,7 +23,7 @@ def update_cube(cube, color, step, isPrime):
         s4, i4 = 4 , [0,1,2]
         f1 = 0 
 
-    else if step == 'D':
+    elif step == 'D':
 
         s1, i1 = 4 , [6,7,8]
         s2, i2 = 3 , [6,7,8]
@@ -39,16 +39,16 @@ def update_cube(cube, color, step, isPrime):
             step = 'R'
             if color == 'b':
                 color = 'o'
-            else if color == 'r':
+            elif color == 'r':
                 color = 'b'
-            else if color == 'g':
+            elif color == 'g':
                 color = 'r'
-            else if color = 'o':
+            elif color == 'o':
                 color = 'g'
             else:
                 print("ERROR: wrong center color")
 
-        if step = 'L':
+        if step == 'L':
 
             s2, s4 = 0, 5
             i1 = [0,3,6]
@@ -58,22 +58,22 @@ def update_cube(cube, color, step, isPrime):
                 s1, s3, f1 = 1, 3, 4
                 i2 = [2,1,0]
                 i4 = [6,7,8]
-            else if color == 'r':
+            elif color == 'r':
                 s1, s3, f1 = 2, 4, 1
                 i2 = [0,3,6]
                 i4 = [0,3,6]
-            else if color == 'g':
+            elif color == 'g':
                 s1, s3, f1 = 3, 1, 2
                 i2 = [6,7,8]
                 i4 = [2,1,0]
-            else if color === 'o':
+            elif color == 'o':
                 s1, s3, f1 = 4, 2, 3
                 i2 = [8,5,2]
                 i4 = [8,5,2]
             else:
                 print("ERROR: wrong center color")
 
-        else if step = 'R':
+        elif step == 'R':
 
             s2, s4 = 5, 0
             i1 = [2,5,8]
@@ -83,15 +83,15 @@ def update_cube(cube, color, step, isPrime):
                 s1, s3, f1 = 1, 3, 2
                 i2 = [0,1,2]
                 i4 = [8,7,6]
-            else if color == 'r':
+            elif color == 'r':
                 s1, s3, f1 = 2, 4, 3
                 i2 = [2,5,8]
                 i4 = [2,5,8]
-            else if color == 'g':
+            elif color == 'g':
                 s1, s3, f1 = 3, 1, 4
                 i2 = [8,7,6]
                 i4 = [0,1,2]
-            else if color === 'o':
+            elif color == 'o':
                 s1, s3, f1 = 4, 2, 1
                 i2 = [6,3,0]
                 i4 = [6,3,0]
@@ -105,7 +105,7 @@ def update_cube(cube, color, step, isPrime):
     if not isPrime:
 
         #updating the side rotations
-        temp = cube_new[s1][i1]
+        temp = cube[s1][i1]
         cube[s1][i1] = cube[s2][i2]
         cube[s2][i2] = cube[s3][i3]
         cube[s3][i3] = cube[s4][i4]
@@ -117,7 +117,7 @@ def update_cube(cube, color, step, isPrime):
     else:
 
         #updating the side rotations
-        temp = cube_new[s4][i4]
+        temp = cube[s4][i4]
         cube[s4][i4] = cube[s3][i3]
         cube[s3][i3] = cube[s2][i2]
         cube[s2][i2] = cube[s1][i1]

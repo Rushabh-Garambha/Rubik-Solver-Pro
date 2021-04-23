@@ -123,9 +123,10 @@ class CubeDisplay():
 
         # print(self.cube)
 
-        cube_str = ''
-        for side in cube:
-            cube_str += ''.join(side)
+        # cube_str = ''
+        # for side in cube:
+        #     cube_str += ''.join(side)
+        cube_str = ''.join(list(cube.flatten()))
         #
         # #TODO: check if all the sides are detected correctly
         # print(cube_str)

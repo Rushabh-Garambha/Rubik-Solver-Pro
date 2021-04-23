@@ -153,6 +153,7 @@ while True:
         if len(detected_side) == 9:
             print(detected_side)
             center = detected_side[4]
+            detected_side = np.asarray(detected_side)
             if center == 'y':
                 cube[0] = detected_side
             elif center == 'b':
@@ -170,7 +171,7 @@ while True:
         # TODO: add condition to check if all the sides are detected
         print(cube)
         ins_str = cd.solve(cube)
-        print("test : " + ins_str)
+        print("solution : " + ins_str)
         if len(ins_str) != 0:
             solution = "Solution: " + ins_str[1:-1]
         # also once we have solution we won't need to show the contours..
