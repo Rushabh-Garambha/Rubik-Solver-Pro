@@ -7,7 +7,7 @@ def get_color(img_hsv, x1, x2, y1, y2):
     # print(b, g, r)
 
 
-    if b < 100 and g > 120 and r > 120 and np.abs(g - r) < 30:
+    if b < 100 and g > 120 and r > 120 and np.abs(g - r) < 50:
         return 'y'
     elif b > 120 and g > 120 and r > 100:
         return 'w'

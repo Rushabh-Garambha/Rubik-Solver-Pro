@@ -12,7 +12,9 @@ def get_steps(move_string):
     return step_list
 
 
-def update_cube(cube, color, step, isPrime):
+def update_cube(cube_old, color, step, isPrime):
+
+    cube = cube_old.copy()
     
     if step == 'U':
 
