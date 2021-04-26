@@ -97,24 +97,19 @@ def detect_contours(img, min_threshold, max_threshold):
 
 def translate_moves(moves):
     translated = []
+    print(moves)
     #TODO: string.replace()
     for move in moves:
-        if move == 'B':
-            m = 'R'
-        elif move == 'F':
-            m = 'L'
-        elif move == 'R':
-            m = 'F'
-        elif move == 'L':
-            m = 'B'
-        elif move == "B'":
-            m = "R'"
-        elif move == "F'":
-            m = "L'"
-        elif move == "R'":
-            m = "F'"
-        elif move == "L'":
-            m = "B'"
+        if move[0] == 'B':
+            m = move.replace("B","R")
+        elif move[0] == 'F':
+            m = move.replace("F","L")
+        elif move[0] == 'R':
+            m = move.replace("R","F")
+        elif move[0] == 'L':
+            m = move.replace("L","B")
+        else:
+            m = move
         translated.append(m)
     print(translated)
     return translated
@@ -236,7 +231,6 @@ while True:
     if moves is not None and len(side) == 9 and not solved:
         if np.all(np.asarray(side) == cube[cur_side]):
             move = moves[0]
-            print(move, cur_side, next_side)
             frame = show_step(move, final_contours, frame)
 
         elif np.all(np.asarray(side) == cube_next[next_side]):
@@ -244,7 +238,6 @@ while True:
             print("detected Next side")
             if move[0] == 'B':
                 moves = translate_moves(moves)
-                print(moves)
                 move = moves[0]
                 cube_next = update_cube(cube, color_index[next_side], move[0], (len(move) == 2))
                 cur_side = next_side
