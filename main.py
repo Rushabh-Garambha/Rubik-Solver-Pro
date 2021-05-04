@@ -38,7 +38,7 @@ def fill_cube_with_sample_state():
                   ['y', 'w', 'r', 'y', 'w', 'r', 'y', 'y', 'r']])
     return a
 
-def create_live_feed_cube_square(img, start_x, start_y, box_size, border_color=(255, 0, 255), cube_size=3, ):
+def create_live_feed_cube_square(img, start_x, start_y, box_size, border_color=(255, 0, 255), cube_size=3):
     box_size = max(90, box_size)
     cubie_s = box_size / cube_size
     cubies_coords = []
@@ -53,6 +53,9 @@ def create_live_feed_cube_square(img, start_x, start_y, box_size, border_color=(
             pt1 = (pt1[0] + border_thickness, pt1[1] + border_thickness)
             pt2 = (pt2[0] - border_thickness, pt2[1] - border_thickness)
             cubies_coords.append([pt1, pt2])
+    # Preview Text with shadow effect
+    cv.putText(img, "Preview", (start_x + 1, start_y - 8), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,0), 1)
+    cv.putText(img, "Preview", (start_x - 1, start_y - 10), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1)
     return img, cubies_coords
 
 
