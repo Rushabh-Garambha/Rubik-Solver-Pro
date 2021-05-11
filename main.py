@@ -30,12 +30,12 @@ cubie_offset = 2
 
 #  R U L D R U L D
 def fill_cube_with_sample_state():
-    a = np.array([['w', 'w', 'r', 'w', 'y', 'r', 'w', 'y', 'r'],
-                  ['g', 'b', 'b', 'g', 'b', 'b', 'g', 'b', 'b'],
-                  ['o', 'r', 'w', 'o', 'r', 'w', 'o', 'r', 'w'],
-                  ['g', 'g', 'g', 'g', 'g', 'g', 'b', 'b', 'b'],
-                  ['y', 'o', 'o', 'y', 'o', 'o', 'y', 'o', 'o'],
-                  ['y', 'w', 'r', 'y', 'w', 'r', 'y', 'y', 'r']])
+    a = np.array([['y', 'r', 'b', 'b', 'y', 'r', 'y', 'r', 'w'],
+                  ['r', 'o', 'r', 'y', 'b', 'b', 'r', 'y', 'g'],
+                  ['g', 'g', 'o', 'y', 'r', 'g', 'y', 'w', 'w'],
+                  ['g', 'y', 'y', 'w', 'g', 'g', 'b', 'w', 'o'],
+                  ['o', 'b', 'b', 'o', 'o', 'o', 'b', 'w', 'w'],
+                  ['o', 'b', 'r', 'g', 'w', 'o', 'g', 'r', 'w']])
     return a
 
 def create_live_feed_cube_square(img, start_x, start_y, box_size, border_color=(255, 0, 255), cube_size=3):
@@ -160,6 +160,18 @@ def show_step(move, final_contours, f):
 
     return f
 
+# add guide info
+append_text = """Press A: To update preview to cube """
+append_text_org = (420,30)
+solve_text = "Press S: To solve the cube"
+solve_text_org = (420,70)
+exit_text = "Press P: Exit"
+exit_text_org = (420,110)
+
+cv.putText(cd.cube_frame, append_text, append_text_org, cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+cv.putText(cd.cube_frame, solve_text,solve_text_org , cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+cv.putText(cd.cube_frame, exit_text, exit_text_org, cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+
 
 while True:
     # Display Cube State
@@ -214,6 +226,12 @@ while True:
         ins_str = cd.solve(cube)
         print("solution : " + ins_str)
         if len(ins_str) != 0:
+            # removing append/solve button info
+            cv.putText(cd.cube_frame, append_text, append_text_org, cv.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+            cv.putText(cd.cube_frame, solve_text, solve_text_org, cv.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+            cv.putText(cd.cube_frame, exit_text, exit_text_org, cv.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+            cv.putText(cd.cube_frame, exit_text, append_text_org, cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+
             solution = "Solution: " + ins_str[1:-1]
             moves = get_steps(ins_str)
             print("moves : {}".format(moves))

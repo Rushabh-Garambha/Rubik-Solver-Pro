@@ -13,6 +13,9 @@ class CubeDisplay():
         self.set_colors()
         self.cube_frame = np.zeros((600, 800, 3), dtype=np.uint8)
         self.cubies_mapping = {}
+        img = cv.imread('logo.jpg')
+        imh, imw , _ = img.shape
+        self.cube_frame[410:410+imh,410:410+imw,:] = img
         # self.cube = [''] * 54
         self.setup()
 
