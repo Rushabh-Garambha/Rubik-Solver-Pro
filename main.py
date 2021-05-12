@@ -167,16 +167,17 @@ def match_sides(side1, side2):
     return True
 
 # add guide info
-append_text = """Press A: To update preview to cube """
+append_text = """Press 'a': To add preview to cube"""
 append_text_org = (420,30)
-solve_text = "Press S: To solve the cube"
+solve_text = "Press 's': To solve the cube"
 solve_text_org = (420,70)
-exit_text = "Press P: Exit"
+exit_text = "Press 'x': Exit"
 exit_text_org = (420,110)
+cd_font_scale = 0.7
 
-cv.putText(cd.cube_frame, append_text, append_text_org, cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-cv.putText(cd.cube_frame, solve_text,solve_text_org , cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-cv.putText(cd.cube_frame, exit_text, exit_text_org, cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+cv.putText(cd.cube_frame, append_text, append_text_org, cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (255, 255, 255), 2)
+cv.putText(cd.cube_frame, solve_text,solve_text_org , cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (255, 255, 255), 2)
+cv.putText(cd.cube_frame, exit_text, exit_text_org, cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (255, 255, 255), 2)
 
 
 while True:
@@ -233,10 +234,10 @@ while True:
         print("solution : " + ins_str)
         if len(ins_str) != 0:
             # removing append/solve button info
-            cv.putText(cd.cube_frame, append_text, append_text_org, cv.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
-            cv.putText(cd.cube_frame, solve_text, solve_text_org, cv.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
-            cv.putText(cd.cube_frame, exit_text, exit_text_org, cv.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
-            cv.putText(cd.cube_frame, exit_text, append_text_org, cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+            cv.putText(cd.cube_frame, append_text, append_text_org, cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (0, 0, 0), 2)
+            cv.putText(cd.cube_frame, solve_text, solve_text_org, cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (0, 0, 0), 2)
+            cv.putText(cd.cube_frame, exit_text, exit_text_org, cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (0, 0, 0), 2)
+            cv.putText(cd.cube_frame, exit_text, append_text_org, cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (255, 255, 255), 2)
 
             solution = "Solution: " + ins_str[1:-1]
             # moves = get_steps(ins_str)
@@ -330,7 +331,7 @@ while True:
         for i in cube:
             cd.update_colors(i)
 
-    if cv.waitKey(1) == ord('p'):
+    if cv.waitKey(1) == ord('x'):
         break
 cv.waitKey(0)
 cap.release()
