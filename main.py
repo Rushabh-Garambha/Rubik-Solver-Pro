@@ -30,12 +30,12 @@ cubie_offset = 2
 
 #  R U L D R U L D
 def fill_cube_with_sample_state():
-    a = np.array([['y', 'r', 'b', 'b', 'y', 'r', 'y', 'r', 'w'],
-                  ['r', 'o', 'r', 'y', 'b', 'b', 'r', 'y', 'g'],
-                  ['g', 'g', 'o', 'y', 'r', 'g', 'y', 'w', 'w'],
-                  ['g', 'y', 'y', 'w', 'g', 'g', 'b', 'w', 'o'],
-                  ['o', 'b', 'b', 'o', 'o', 'o', 'b', 'w', 'w'],
-                  ['o', 'b', 'r', 'g', 'w', 'o', 'g', 'r', 'w']])
+    a = np.array([['g', 'b', 'o', 'o', 'y', 'b', 'r', 'g', 'w'],
+                  ['o', 'y', 'y', 'r', 'b', 'y', 'g', 'b', 'o'],
+                  ['b', 'o', 'g', 'r', 'r', 'o', 'y', 'r', 'b'],
+                  ['r', 'o', 'w', 'w', 'g', 'g', 'r', 'y', 'y'],
+                  ['b', 'w', 'w', 'y', 'o', 'w', 'g', 'g', 'o'],
+                  ['b', 'g', 'w', 'r', 'w', 'b', 'y', 'w', 'r']])
     return a
 
 def create_live_feed_cube_square(img, start_x, start_y, box_size, border_color=(255, 0, 255), cube_size=3):
@@ -101,7 +101,6 @@ def detect_contours(img, min_threshold, max_threshold):
 def translate_moves(moves):
     translated = []
     print(moves)
-    #TODO: string.replace()
     for move in moves:
         if move[0] == 'B':
             m = move.replace("B","R")
@@ -154,11 +153,18 @@ def show_step(move, final_contours, f):
         f = draw_arrow(3, 7, final_contours, f)
         f = draw_arrow(1, 3, final_contours, f)
     else:
+        # Back or Special case
         f = draw_arrow(2, 0, final_contours, f)
         f = draw_arrow(5, 3, final_contours, f)
         f = draw_arrow(8, 6, final_contours, f)
 
     return f
+
+def match_sides(side1, side2):
+    for i in range(9):
+        if side1[i] != side2[i]:
+            return False
+    return True
 
 # add guide info
 append_text = """Press A: To update preview to cube """
@@ -233,7 +239,8 @@ while True:
             cv.putText(cd.cube_frame, exit_text, append_text_org, cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
 
             solution = "Solution: " + ins_str[1:-1]
-            moves = get_steps(ins_str)
+            # moves = get_steps(ins_str)
+            moves = ["L'", 'B', 'R', "U'"]
             print("moves : {}".format(moves))
             cur_side = 2
             first_move = moves[0]
@@ -243,6 +250,18 @@ while True:
             else:
                 next_side = 2
                 cube_next = update_cube(cube, 'r', first_move[0], (len(first_move) == 2))
+                if match_sides(cube[cur_side],cube_next[next_side]):
+                    print("moves: ", moves)
+                    if cur_side == 4:
+                        next_side = 1
+                    else:
+                        next_side = cur_side + 1
+                    cube_next = cube.copy()
+                    first_move = 'S'
+                    moves.insert(0, first_move)
+                    print("current side: ", cube[cur_side])
+                    print("next side: ", cube_next[next_side])
+                    print("moves: ", moves)
             print(first_move, cur_side,next_side)
         # also once we have solution we won't need to show the contours..
         # we will still need to detect them to show arrows,
@@ -257,8 +276,8 @@ while True:
         elif np.all(np.asarray(side) == cube_next[next_side]):
             move = moves[0]
             print("detected Next side")
-            if move[0] == 'B':
-                moves = translate_moves(moves)
+            if move == 'S' or move[0] == 'B':
+                moves = translate_moves(moves) if move[0] == 'B' else translate_moves(moves[1:])
                 move = moves[0]
                 cube_next = update_cube(cube, color_index[next_side], move[0], (len(move) == 2))
                 cur_side = next_side
@@ -286,8 +305,20 @@ while True:
                     else:
                         next_side = cur_side
                         cube_next = update_cube(cube, color_index[next_side], move[0], (len(move) == 2))
-                    frame = show_step(move, final_contours, frame)
-                print(move, cur_side, next_side)
+            if match_sides(cube[cur_side],cube_next[next_side]):
+                print("moves: ", moves)
+                if cur_side == 4:
+                    next_side = 1
+                else:
+                    next_side = cur_side + 1
+                cube_next = cube.copy()
+                move = 'S'
+                moves.insert(0, move)
+                print("current side: ", cube[cur_side])
+                print("next side: ", cube_next[next_side])
+                print("moves: ", moves)
+            frame = show_step(move, final_contours, frame)
+            print(move, cur_side, next_side)
 
 
 
@@ -298,7 +329,6 @@ while True:
         cube = fill_cube_with_sample_state()
         for i in cube:
             cd.update_colors(i)
-    # TODO: reset state to try everything again
 
     if cv.waitKey(1) == ord('p'):
         break
