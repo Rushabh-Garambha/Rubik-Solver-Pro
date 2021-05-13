@@ -28,15 +28,18 @@ solved = False
 cubie_offset = 2
 
 
-#  R U L D R U L D
+#  This function fills cube with sample state so that
+#  we don't have to spend time in detecting cube every time
+#  during development.
 def fill_cube_with_sample_state():
-    a = np.array([['g', 'b', 'o', 'o', 'y', 'b', 'r', 'g', 'w'],
-                  ['o', 'y', 'y', 'r', 'b', 'y', 'g', 'b', 'o'],
-                  ['b', 'o', 'g', 'r', 'r', 'o', 'y', 'r', 'b'],
-                  ['r', 'o', 'w', 'w', 'g', 'g', 'r', 'y', 'y'],
-                  ['b', 'w', 'w', 'y', 'o', 'w', 'g', 'g', 'o'],
-                  ['b', 'g', 'w', 'r', 'w', 'b', 'y', 'w', 'r']])
+    a = np.array([['y', 'w', 'y', 'w', 'y', 'w', 'y', 'w', 'y'],
+                  ['b', 'g', 'b', 'g', 'b', 'g', 'b', 'g', 'b'],
+                  ['r', 'o', 'r', 'o', 'r', 'o', 'r', 'o', 'r'],
+                  ['g', 'b', 'g', 'b', 'g', 'b', 'g', 'b', 'g'],
+                  ['o', 'r', 'o', 'r', 'o', 'r', 'o', 'r', 'o'],
+                  ['w', 'y', 'w', 'y', 'w', 'y', 'w', 'y', 'w']])
     return a
+
 
 def create_live_feed_cube_square(img, start_x, start_y, box_size, border_color=(255, 0, 255), cube_size=3):
     box_size = max(90, box_size)
@@ -54,14 +57,13 @@ def create_live_feed_cube_square(img, start_x, start_y, box_size, border_color=(
             pt2 = (pt2[0] - border_thickness, pt2[1] - border_thickness)
             cubies_coords.append([pt1, pt2])
     # Preview Text with shadow effect
-    cv.putText(img, "Preview", (start_x + 1, start_y - 8), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,0), 1)
+    cv.putText(img, "Preview", (start_x + 1, start_y - 8), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
     cv.putText(img, "Preview", (start_x - 1, start_y - 10), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1)
     return img, cubies_coords
 
 
 def detect_contours(img, min_threshold, max_threshold):
     img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-    # img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     img_gray = img_hsv[:, :, 2]
     blurred_img = cv.medianBlur(img_gray, 3)
 
@@ -91,8 +93,6 @@ def detect_contours(img, min_threshold, max_threshold):
             if ratio >= 0.8 and ratio <= 1.2 and w >= 30 and w <= 60 and area / (w * h) > 0.4:
                 final_contours.append((x, y, w, h, x + (w // 2), y + (h // 2)))
 
-    # img_cnt = cv.drawContours(img, contours, -1, (0, 255, 0), 3)
-    # print(final_contours)
     final_contours.sort(key=lambda x: (x[1] // 20, x[0] // 20))
 
     return final_contours
@@ -100,20 +100,20 @@ def detect_contours(img, min_threshold, max_threshold):
 
 def translate_moves(moves):
     translated = []
-    print(moves)
+    print("Before Translation: {}".format(moves))
     for move in moves:
         if move[0] == 'B':
-            m = move.replace("B","R")
+            m = move.replace("B", "R")
         elif move[0] == 'F':
-            m = move.replace("F","L")
+            m = move.replace("F", "L")
         elif move[0] == 'R':
-            m = move.replace("R","F")
+            m = move.replace("R", "F")
         elif move[0] == 'L':
-            m = move.replace("L","B")
+            m = move.replace("L", "B")
         else:
             m = move
         translated.append(m)
-    print(translated)
+    print("After Translation: {}".format(translated))
     return translated
 
 
@@ -160,25 +160,28 @@ def show_step(move, final_contours, f):
 
     return f
 
+
 def match_sides(side1, side2):
     for i in range(9):
         if side1[i] != side2[i]:
             return False
     return True
 
+
 # add guide info
 append_text = """Press 'a': To add preview to cube"""
-append_text_org = (420,30)
+append_text_org = (420, 30)
 solve_text = "Press 's': To solve the cube"
-solve_text_org = (420,70)
+solve_text_org = (420, 70)
 exit_text = "Press 'x': Exit"
-exit_text_org = (420,110)
+exit_text_org = (420, 110)
 cd_font_scale = 0.7
 
 cv.putText(cd.cube_frame, append_text, append_text_org, cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (255, 255, 255), 2)
-cv.putText(cd.cube_frame, solve_text,solve_text_org , cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (255, 255, 255), 2)
+cv.putText(cd.cube_frame, solve_text, solve_text_org, cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (255, 255, 255), 2)
 cv.putText(cd.cube_frame, exit_text, exit_text_org, cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (255, 255, 255), 2)
 
+(csw, csh), _ = cv.getTextSize('Cube_solved!', cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, 2)
 
 while True:
     # Display Cube State
@@ -187,6 +190,15 @@ while True:
     ret, frame = cap.read()
     height, width, _ = frame.shape
     img = frame.copy()
+
+    if cv.waitKey(1) == ord('x'):
+        break
+
+    if solved:
+        cv.putText(frame, "Cube Solved!", ((width - csw) // 2, 30), cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (255, 0, 0),
+                   2)
+        cv.imshow('live_feed', frame)
+        continue
 
     # Draw instace box in frame
     frame, live_instance_cords = create_live_feed_cube_square(frame, 10, height - 100, 90, (128, 128, 128))
@@ -201,7 +213,7 @@ while True:
 
     # color Extraction
     side = []
-    if (len(final_contours) == 9):
+    if len(final_contours) == 9:
         for fc in final_contours:
             x1, y1 = fc[0] + cubie_offset, fc[1] + cubie_offset
             x2, y2 = fc[0] + fc[2] - cubie_offset, fc[1] + fc[3] - cubie_offset
@@ -213,7 +225,7 @@ while True:
             else:
                 break
 
-        if (len(side) == 9):
+        if len(side) == 9:
             detected_side = side
 
     # update instance box
@@ -234,14 +246,15 @@ while True:
         print("solution : " + ins_str)
         if len(ins_str) != 0:
             # removing append/solve button info
-            cv.putText(cd.cube_frame, append_text, append_text_org, cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (0, 0, 0), 2)
+            cv.putText(cd.cube_frame, append_text, append_text_org, cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (0, 0, 0),
+                       2)
             cv.putText(cd.cube_frame, solve_text, solve_text_org, cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (0, 0, 0), 2)
             cv.putText(cd.cube_frame, exit_text, exit_text_org, cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (0, 0, 0), 2)
-            cv.putText(cd.cube_frame, exit_text, append_text_org, cv.FONT_HERSHEY_SIMPLEX, cd_font_scale, (255, 255, 255), 2)
+            cv.putText(cd.cube_frame, exit_text, append_text_org, cv.FONT_HERSHEY_SIMPLEX, cd_font_scale,
+                       (255, 255, 255), 2)
 
             solution = "Solution: " + ins_str[1:-1]
-            # moves = get_steps(ins_str)
-            moves = ["L'", 'B', 'R', "U'"]
+            moves = get_steps(ins_str)
             print("moves : {}".format(moves))
             cur_side = 2
             first_move = moves[0]
@@ -251,8 +264,7 @@ while True:
             else:
                 next_side = 2
                 cube_next = update_cube(cube, 'r', first_move[0], (len(first_move) == 2))
-                if match_sides(cube[cur_side],cube_next[next_side]):
-                    print("moves: ", moves)
+                if match_sides(cube[cur_side], cube_next[next_side]):
                     if cur_side == 4:
                         next_side = 1
                     else:
@@ -260,10 +272,7 @@ while True:
                     cube_next = cube.copy()
                     first_move = 'S'
                     moves.insert(0, first_move)
-                    print("current side: ", cube[cur_side])
-                    print("next side: ", cube_next[next_side])
-                    print("moves: ", moves)
-            print(first_move, cur_side,next_side)
+            print(first_move, cur_side, next_side)
         # also once we have solution we won't need to show the contours..
         # we will still need to detect them to show arrows,
         # but for that we will need to get the sequence correct --hint for self-- do it with centers rather than corners
@@ -276,29 +285,33 @@ while True:
 
         elif np.all(np.asarray(side) == cube_next[next_side]):
             move = moves[0]
-            print("detected Next side")
+            print("Detected next side")
             if move == 'S' or move[0] == 'B':
                 moves = translate_moves(moves) if move[0] == 'B' else translate_moves(moves[1:])
-                move = moves[0]
-                cube_next = update_cube(cube, color_index[next_side], move[0], (len(move) == 2))
                 cur_side = next_side
+                move = moves[0]
+                if move[0] == 'B':
+                    if cur_side == 4:
+                        next_side = 1
+                    else:
+                        next_side = cur_side + 1
+                else:
+                    cube_next = update_cube(cube, color_index[next_side], move[0], (len(move) == 2))
                 print(move, cur_side, next_side)
             else:
-                print('not back side')
                 moves = moves[1:]
                 if len(moves) == 0:
                     solved = True
-                    print(cube_next)
                     cube = cube_next.copy()
                     for side in cube:
                         cd.update_colors(side)
+                    print("The cube is solved.")
                 else:
                     move = moves[0]
                     cube = cube_next.copy()
                     for side in cube:
                         cd.update_colors(side)
                     if move[0] == 'B':
-                        print("next move is B")
                         if cur_side == 4:
                             next_side = 1
                         else:
@@ -306,8 +319,7 @@ while True:
                     else:
                         next_side = cur_side
                         cube_next = update_cube(cube, color_index[next_side], move[0], (len(move) == 2))
-            if match_sides(cube[cur_side],cube_next[next_side]):
-                print("moves: ", moves)
+            if not solved and match_sides(cube[cur_side], cube_next[next_side]):
                 if cur_side == 4:
                     next_side = 1
                 else:
@@ -315,13 +327,9 @@ while True:
                 cube_next = cube.copy()
                 move = 'S'
                 moves.insert(0, move)
-                print("current side: ", cube[cur_side])
-                print("next side: ", cube_next[next_side])
-                print("moves: ", moves)
-            frame = show_step(move, final_contours, frame)
-            print(move, cur_side, next_side)
-
-
+            if not solved:
+                frame = show_step(move, final_contours, frame)
+                print(move, cur_side, next_side)
 
     # Display Live Feed
     cv.imshow('live_feed', frame)
@@ -331,8 +339,6 @@ while True:
         for i in cube:
             cd.update_colors(i)
 
-    if cv.waitKey(1) == ord('x'):
-        break
 cv.waitKey(0)
 cap.release()
 cv.destroyAllWindows()
