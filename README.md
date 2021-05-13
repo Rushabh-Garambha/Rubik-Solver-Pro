@@ -28,6 +28,6 @@ When the cube face is detected, face preview will be visible in the preview slot
 state by pressing `a`. <br>
 ### Solving Cube
 After complete cube is detected user can press `s` to solve the cube and retrieve the solving steps.
-To start the cube solving user have to show the side with `Red Center` while side with `Yellow Center` faces `Top` and 
+To solve the cube, first user have to start with showing the side with `Red Center` while side with `Yellow Center` faces `Top` and 
 side with `White Center` faces `Bottom`.
 
