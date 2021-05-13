@@ -4,7 +4,7 @@ This project aims to help user solve rubik's cube by showing moves in form of ar
 
 ## Installation
 
-Clone this repo in your system. And, install required libraries from PyPI:
+Clone this repo in your system and install required libraries from PyPI:
 
 ```bash
 pip install opencv-python
