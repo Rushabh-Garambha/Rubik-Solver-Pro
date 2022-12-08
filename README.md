@@ -31,3 +31,11 @@ After complete cube is detected user can press `s` to solve the cube and retriev
 To solve the cube, first user have to start with showing the side with `Red Center` while side with `Yellow Center` faces `Top` and 
 side with `White Center` faces `Bottom`.
 
+### Preview Images
+#### Detecting Cube State
+![CV SS 1](https://user-images.githubusercontent.com/89860786/206485326-ed29937f-c1f4-431b-96fe-a7c5896b97bc.png)
+### Display Solution
+![CV SS2](https://user-images.githubusercontent.com/89860786/206485316-6e656978-7479-43d7-b134-3215094f550c.png) ![CV SS3](https://user-images.githubusercontent.com/89860786/206485303-d64b1111-ab9d-470d-8faf-607c3b17ddfd.png) ![CV SS4](https://user-images.githubusercontent.com/89860786/206485262-d313df12-2370-4bac-b350-616b8061ad15.png)
+### Cube Solved!
+![image](https://user-images.githubusercontent.com/89860786/206485144-6c79cce7-304c-4709-9956-3040d3b98f43.png)
+
